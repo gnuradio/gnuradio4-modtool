@@ -1,0 +1,31 @@
+add_library({{ cmake_prefix }}_blocks_{{ group_name }}_headers INTERFACE)
+add_library({{ cmake_prefix }}::blocks_{{ group_name }}_headers ALIAS {{ cmake_prefix }}_blocks_{{ group_name }}_headers)
+
+target_include_directories({{ cmake_prefix }}_blocks_{{ group_name }}_headers INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+target_compile_features({{ cmake_prefix }}_blocks_{{ group_name }}_headers INTERFACE cxx_std_23)
+target_link_libraries({{ cmake_prefix }}_blocks_{{ group_name }}_headers INTERFACE ${GR4_OOT_GNURADIO4_TARGET})
+install(TARGETS {{ cmake_prefix }}_blocks_{{ group_name }}_headers EXPORT {{ cmake_prefix }}Targets)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/{{ gr4_include_prefix }}/{{ group_name }}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/{{ gr4_include_prefix }})
+
+file(GLOB {{ cmake_prefix }}_{{ group_name }}_HEADERS CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/{{ gr4_include_prefix }}/{{ group_name }}/*.hpp"
+)
+if({{ cmake_prefix }}_{{ group_name }}_HEADERS)
+  gr_add_block_library(
+    {{ block_library_name }}
+    MAKE_SHARED_LIBRARY
+    HEADERS
+      {{ '${' }}{{ cmake_prefix }}_{{ group_name }}_HEADERS}
+    LINK_LIBRARIES
+      {{ cmake_prefix }}_blocks_{{ group_name }}_headers
+  )
+endif()
+
+if(ENABLE_TESTING)
+  add_subdirectory(test)
+endif()

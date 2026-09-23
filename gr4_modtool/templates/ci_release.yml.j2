@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    name: Build & Release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: Install GNURadio 4 (see devcontainer Dockerfile for options)
+
+      - name: Configure (release)
+        run: cmake --preset release || cmake -B build-release -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=OFF
+
+      - name: Build
+        run: cmake --build build-release --parallel
+
+      - name: Package
+        working-directory: build-release
+        run: cpack || echo "CPack not configured, skipping packaging"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build-release/*.tar.gz
+          generate_release_notes: true

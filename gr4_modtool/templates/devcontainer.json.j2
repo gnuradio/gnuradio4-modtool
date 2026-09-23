@@ -1,0 +1,26 @@
+{
+    "name": "{{ project_name }}",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "llvm-vs-code-extensions.vscode-clangd",
+                "ms-vscode.cmake-tools",
+                "ms-python.python",
+                "charliermarsh.ruff"
+            ],
+            "settings": {
+                "cmake.buildDirectory": "${workspaceFolder}/build",
+                "editor.formatOnSave": true,
+                "[cpp]": {
+                    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+                }
+            }
+        }
+    },
+    "postCreateCommand": "pip install --user gr4_modtool",
+    "remoteUser": "vscode"
+}

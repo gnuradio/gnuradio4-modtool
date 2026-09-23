@@ -1,0 +1,47 @@
+name: Coverage
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: Install GNURadio 4 (see devcontainer Dockerfile for options)
+
+      - name: Install gcovr
+        run: pip install gcovr
+
+      - name: Configure
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DENABLE_TESTING=ON \
+            -DCMAKE_CXX_FLAGS="--coverage" \
+            -DCMAKE_EXE_LINKER_FLAGS="--coverage"
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Generate coverage report
+        run: |
+          gcovr --root . --build-dir build \
+            --exclude-directories build \
+            --xml coverage.xml \
+            --html-details coverage.html
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            coverage.html

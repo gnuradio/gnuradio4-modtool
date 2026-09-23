@@ -1,0 +1,57 @@
+cmake_minimum_required(VERSION 3.22)
+
+project({{ project_name }} LANGUAGES CXX VERSION {{ version }})
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+option(ENABLE_TESTING "Enable test targets" ON)
+option(WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+
+include(cmake/Dependencies.cmake)
+{{ cmake_prefix }}_resolve_dependencies()
+
+if(ENABLE_TESTING)
+  include(CTest)
+  enable_testing()
+endif()
+
+if(WARNINGS_AS_ERRORS)
+  if(MSVC)
+    add_compile_options(/WX)
+  else()
+    add_compile_options(-Werror)
+  endif()
+endif()
+
+add_subdirectory(blocks)
+
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/{{ cmake_prefix }}Config.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/{{ cmake_prefix }}Config.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/{{ cmake_prefix }}"
+)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/{{ cmake_prefix }}ConfigVersion.cmake"
+  VERSION "${PROJECT_VERSION}"
+  COMPATIBILITY SameMajorVersion
+)
+install(
+  EXPORT {{ cmake_prefix }}Targets
+  FILE {{ cmake_prefix }}Targets.cmake
+  NAMESPACE {{ cmake_prefix }}::
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/{{ cmake_prefix }}"
+)
+install(
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/{{ cmake_prefix }}Config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/{{ cmake_prefix }}ConfigVersion.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/{{ cmake_prefix }}"
+)

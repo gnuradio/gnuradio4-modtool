@@ -1,0 +1,55 @@
+site_name: gr4_modtool
+site_description: GNURadio 4 OOT module management tool
+site_url: https://github.com/gnuradio/gnuradio4-modtool
+repo_url: https://github.com/gnuradio/gnuradio4-modtool
+repo_name: gnuradio/gnuradio4-modtool
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Getting Started: getting-started.md
+  - Command Reference:
+      - Overview: commands/index.md
+      - Scaffolding: commands/scaffolding.md
+      - Block Lifecycle: commands/blocks.md
+      - Testing & Benchmarks: commands/testing.md
+      - Project Health: commands/project.md
+      - Building & Formatting: commands/building.md
+  - Configuration: configuration.md
+  - Contributing: contributing.md

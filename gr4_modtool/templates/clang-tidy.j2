@@ -1,0 +1,40 @@
+---
+# clang-tidy configuration for {{ project_name }}
+# Checks are tuned for GNURadio 4 C++23 block headers.
+# Public member variables (ports, annotated params) are intentional — keep
+# the non-private-member and special-member suppressions below.
+
+Checks: >-
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  modernize-*,
+  readability-*,
+  performance-*,
+  cppcoreguidelines-*,
+  -modernize-use-trailing-return-type,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-special-member-functions,
+  -cppcoreguidelines-pro-type-vararg,
+  -cppcoreguidelines-non-private-member-variables-in-classes
+
+WarningsAsErrors: ''
+
+# Only lint headers inside this project's include tree.
+HeaderFilterRegex: 'include/{{ gr4_include_prefix }}/.*\.hpp$'
+
+CheckOptions:
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.MemberCase
+    value: camelBack
+  - key: readability-identifier-naming.FunctionCase
+    value: camelBack
+  - key: readability-identifier-naming.PrivateMemberSuffix
+    value: ''

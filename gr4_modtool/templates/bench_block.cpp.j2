@@ -1,0 +1,62 @@
+// bench_{{ block_name }}.cpp — throughput benchmark for {{ block_name }}
+#include <{{ gr4_include_prefix }}/{{ group }}/{{ block_name }}.hpp>
+#include <chrono>
+{% if uses_complex %}
+#include <complex>
+#include <cmath>
+{% endif %}
+#include <cstdio>
+#include <cstring>
+#include <vector>
+#include <span>
+#include <math>
+
+static double throughput_mss(double sec, std::size_t n) {
+    return static_cast<double>(n) / sec / 1e6;
+}
+
+template<typename T>
+static void do_not_optimize(const T& v) {
+    volatile const void* p = &v;
+    (void)p;
+}
+
+static bool g_filter_active = false;
+static const char* g_filter  = nullptr;
+
+static bool should_run(const char* name) {
+    if (!g_filter_active) { return true; }
+    return std::strstr(name, g_filter) != nullptr;
+}
+
+static void bench_{{ block_name }}() {
+    if (!should_run("{{ block_name }}")) { return; }
+    constexpr std::size_t N = 1u << 20u;
+    {{ namespace }}::{{ block_name }}<{{ first_type }}> blk;
+    blk.start();
+{% for port in in_ports %}
+    std::vector<{{ first_port_type }}> {{ port.name }}(N, {});
+{% endfor %}
+    std::vector<{{ first_port_type }}> _out(N);
+    auto t0 = std::chrono::steady_clock::now();
+{% if processing_style == 'processOne' %}
+{% if in_ports %}
+    for (std::size_t i = 0; i < N; ++i) { _out[i] = blk.processOne({{ in_ports[0].name }}[i]); }
+{% else %}
+    for (std::size_t i = 0; i < N; ++i) { (void)blk.processOne(); }
+{% endif %}
+{% else %}
+    blk.processBulk({{ in_ports | map(attribute='name') | join(', ') }}, _out);
+{% endif %}
+    auto t1 = std::chrono::steady_clock::now();
+    do_not_optimize(_out[N / 2]);
+    std::printf("{{ block_name }},default,%zu,%.2f\n", N,
+                throughput_mss(std::chrono::duration<double>(t1 - t0).count(), N));
+}
+
+int main(int argc, char* argv[]) {
+    if (argc > 1) { g_filter_active = true; g_filter = argv[1]; }
+    std::puts("block,config,N,throughput_MSas");
+    bench_{{ block_name }}();
+    return 0;
+}

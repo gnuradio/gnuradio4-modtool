@@ -1,0 +1,39 @@
+# Development container for {{ project_name }}
+# Base image includes gcc, clang, cmake, ninja, git, and a non-root 'vscode' user.
+FROM mcr.microsoft.com/devcontainers/cpp:ubuntu26.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config \
+    clang-format \
+    clang-tidy \
+    libfmt-dev \
+    python3-pip \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# boost-ut (header-only, required for OOT block tests)
+RUN curl -fsSL \
+    https://raw.githubusercontent.com/boost-ext/ut/master/include/boost/ut.hpp \
+    -o /usr/local/include/boost/ut.hpp
+
+# ── GNURadio 4 ────────────────────────────────────────────────────────────────
+# Choose one option and uncomment it:
+#
+# Option A — build from source (slow first build, fully self-contained):
+# RUN git clone --depth 1 https://github.com/gnuradio/gnuradio4.git /opt/gnuradio4 \
+#     && cmake -S /opt/gnuradio4 -B /opt/gnuradio4/build \
+#              -DCMAKE_INSTALL_PREFIX=/usr/local \
+#              -DENABLE_TESTING=OFF \
+#     && cmake --build /opt/gnuradio4/build --parallel "$(nproc)" \
+#     && cmake --install /opt/gnuradio4/build \
+#     && rm -rf /opt/gnuradio4
+#
+# Option B — bind-mount an existing local build (fast, requires host checkout).
+#   Add to devcontainer.json:
+#     "mounts": [
+#       "source=/path/to/gnuradio4/install,target=/opt/gnuradio4,type=bind,readonly"
+#     ]
+#   Then pass -DCMAKE_PREFIX_PATH=/opt/gnuradio4 when configuring this project.
+# ──────────────────────────────────────────────────────────────────────────────

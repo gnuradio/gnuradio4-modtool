@@ -1,0 +1,8 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(gnuradio4 CONFIG)
+
+include("${CMAKE_CURRENT_LIST_DIR}/{{ cmake_prefix }}Targets.cmake")
+
+check_required_components({{ cmake_prefix }})

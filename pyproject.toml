@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gr4_modtool"
+version = "0.1.0"
+description = "GNURadio 4 OOT module management tool"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+  { name = "Wylie Standage-Beier", email = "thewyliestcoyote@gmail.com" },
+]
+requires-python = ">=3.11"
+keywords = ["gnuradio", "gnuradio4", "sdr", "oot", "module", "code-generation"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Code Generators",
+  "Topic :: Scientific/Engineering",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+]
+dependencies = [
+  "click>=8.0",
+  "textual>=0.60",
+  "jinja2>=3.1",
+  "questionary>=2.0",
+  "rich>=13.0",
+  "watchdog>=2.0",
+  "PyYAML>=6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/gnuradio/gnuradio4-modtool"
+Repository = "https://github.com/gnuradio/gnuradio4-modtool"
+Documentation = "https://github.com/gnuradio/gnuradio4-modtool"
+"Bug Tracker" = "https://github.com/gnuradio/gnuradio4-modtool/issues"
+
+[project.scripts]
+gr4_modtool = "gr4_modtool.cli:cli"
+
+[project.entry-points."gr4_modtool.commands"]
+# Third-party packages register additional Click commands here
+
+[project.entry-points."gr4_modtool.templates"]
+# Third-party packages register additional template directories here
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gr4_modtool*"]
+
+[tool.setuptools.package-data]
+gr4_modtool = ["templates/*.j2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "pytest-cov", "ruff>=0.4", "mypy>=1.10"]
+docs = ["mkdocs-material>=9.5", "mkdocs-click>=0.8"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]                        # line length handled by formatter
+
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true
+
+
+[tool.pytest.ini_options]
+markers = ["slow: requires cmake and GNURadio 4 headers; skipped by default"]

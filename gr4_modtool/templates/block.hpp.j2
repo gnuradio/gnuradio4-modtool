@@ -1,0 +1,73 @@
+#pragma once
+
+#include <gnuradio-4.0/Block.hpp>
+#include <gnuradio-4.0/BlockRegistry.hpp>
+{% if uses_complex %}
+#include <complex>
+#include <cmath>
+{% endif %}
+{% if multi_output %}
+#include <tuple>
+#include <span>
+{% endif %}
+
+namespace {{ namespace }} {
+using namespace gr;
+
+template<{{ template_decl }}>
+struct {{ block_name }} : Block<{{ block_name }}<{{ template_args }}>> {
+    using Description = Doc<"{{ description }}">;
+
+{% for port in in_ports %}
+    PortIn<{{ port.type }}> {{ port.name }};
+{% endfor %}
+{% for port in out_ports %}
+    PortOut<{{ port.type }}> {{ port.name }};
+{% endfor %}
+
+    GR_MAKE_REFLECTABLE({{ block_name }}, {{ all_port_names | join(', ') }});
+
+{% if processing_style == 'processOne' %}
+    [[nodiscard]] constexpr {{ return_type }} processOne({{ params_str }}) const noexcept {
+{% for port in process_in_ports %}
+        (void){{ port.arg_name }};
+{% endfor %}
+        // TODO: implement
+{% if not has_return_value %}
+        return;
+{% elif multi_output %}
+        return {};
+{% else %}
+        return {};
+{% endif %}
+    }
+{% else %}
+    [[nodiscard]] gr::work::Status processBulk({{ bulk_params_str }}) noexcept {
+{% for port in process_in_ports %}
+        (void){{ port.arg_name }};
+{% endfor %}
+{% for port in process_out_ports %}
+        (void){{ port.arg_name }};
+{% endfor %}
+{% if simd %}
+        // SIMD-vectorizable: loop body has no cross-iteration dependencies.
+        const std::size_t n = {% if process_in_ports %}{{ process_in_ports[0].arg_name }}{% else %}{{ process_out_ports[0].arg_name }}{% endif %}.size();
+#pragma GCC ivdep
+        for (std::size_t i = 0; i != n; ++i) {
+{% if in_ports and out_ports %}
+            {{ process_out_ports[0].arg_name }}[i] = {{ process_in_ports[0].arg_name }}[i]; // TODO: implement
+{% else %}
+            // TODO: implement
+{% endif %}
+        }
+{% else %}
+        // TODO: implement
+{% endif %}
+        return gr::work::Status::OK;
+    }
+{% endif %}
+};
+
+GR_REGISTER_BLOCK("{{ namespace }}::{{ block_name }}", {{ namespace }}::{{ block_name }}, {{ template_param_macro }}, [ {{ type_list }} ])
+
+} // namespace {{ namespace }}

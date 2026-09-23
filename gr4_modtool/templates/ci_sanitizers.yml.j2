@@ -1,0 +1,43 @@
+name: Sanitizers
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  asan:
+    name: AddressSanitizer
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: Install GNURadio 4 (see devcontainer Dockerfile for options)
+
+      - name: Configure (asan)
+        run: cmake --preset asan
+
+      - name: Build (asan)
+        run: cmake --build --preset asan
+
+      - name: Test (asan)
+        env:
+          ASAN_OPTIONS: detect_leaks=0
+        run: ctest --preset asan
+
+  ubsan:
+    name: UndefinedBehaviorSanitizer
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: Install GNURadio 4 (see devcontainer Dockerfile for options)
+
+      - name: Configure (ubsan)
+        run: cmake --preset ubsan
+
+      - name: Build (ubsan)
+        run: cmake --build --preset ubsan
+
+      - name: Test (ubsan)
+        run: ctest --preset ubsan

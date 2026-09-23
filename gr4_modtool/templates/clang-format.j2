@@ -1,0 +1,26 @@
+---
+# clang-format configuration for {{ project_name }}
+Language:        Cpp
+BasedOnStyle:    LLVM
+IndentWidth:     4
+ColumnLimit:     120
+Standard:        c++23
+
+# Braces & line breaks
+BreakBeforeBraces:                   Attach
+AllowShortFunctionsOnASingleLine:    Inline
+AllowShortIfStatementsOnASingleLine: Never
+AlwaysBreakTemplateDeclarations:     Yes
+BreakBeforeConceptDeclarations:      Always
+
+# Includes
+IncludeBlocks:   Regroup
+SortIncludes:    CaseSensitive
+
+# Spacing
+SpaceBeforeParens:         ControlStatements
+SpaceAfterTemplateKeyword: false
+
+# Alignment
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false

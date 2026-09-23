@@ -1,0 +1,37 @@
+{
+    "name": "gr4_modtool dev",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "charliermarsh.ruff",
+                "ms-python.mypy-type-checker",
+                "samuelcolvin.jinjahtml",
+                "llvm-vs-code-extensions.vscode-clangd"
+            ],
+            "settings": {
+                "python.testing.pytestEnabled": true,
+                "python.testing.pytestArgs": ["tests"],
+                "editor.formatOnSave": true,
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff"
+                }
+            }
+        }
+    },
+    "postCreateCommand": "pip install --user --break-system-packages -e '.[dev,docs]'",
+    "remoteEnv": {
+        "PATH": "/home/vscode/.local/bin:${containerEnv:PATH}"
+    },
+    "forwardPorts": [8000],
+    "portsAttributes": {
+        "8000": {
+            "label": "mkdocs serve"
+        }
+    },
+    "remoteUser": "vscode"
+}

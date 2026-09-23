@@ -1,0 +1,47 @@
+name: Build Matrix
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    name: {% raw %}${{ matrix.compiler }} / ${{ matrix.build_type }}{% endraw %}
+
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+        build_type: [Debug, Release]
+        include:
+          - compiler: gcc
+            cc: gcc
+            cxx: g++
+          - compiler: clang
+            cc: clang
+            cxx: clang++
+
+    env:
+      CC: {% raw %}${{ matrix.cc }}{% endraw %}
+
+      CXX: {% raw %}${{ matrix.cxx }}{% endraw %}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: Install GNURadio 4 (see devcontainer Dockerfile for options)
+
+      - name: Configure
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE={% raw %}${{ matrix.build_type }}{% endraw %} \
+            -DENABLE_TESTING=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure

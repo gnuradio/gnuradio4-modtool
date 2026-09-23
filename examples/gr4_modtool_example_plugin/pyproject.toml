@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gr4-modtool-example-plugin"
+version = "0.1.0"
+description = "Example plugin demonstrating gr4_modtool extension points"
+requires-python = ">=3.10"
+dependencies = [
+    "gr4_modtool",
+    "click>=7.0",
+]
+
+# ---------------------------------------------------------------------------
+# CLI command plugins — each value is "module:object" pointing at a
+# click.BaseCommand.  The key is an identifier used only in warning messages.
+# ---------------------------------------------------------------------------
+[project.entry-points."gr4_modtool.commands"]
+report = "gr4_modtool_example_plugin.commands.report:cmd"
+
+# ---------------------------------------------------------------------------
+# Template directory plugins — each value is "module:callable" where the
+# callable takes no arguments and returns a path to a directory of .j2 files.
+# ---------------------------------------------------------------------------
+[project.entry-points."gr4_modtool.templates"]
+example_plugin = "gr4_modtool_example_plugin.templates:get_templates_dir"

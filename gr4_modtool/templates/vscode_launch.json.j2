@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "inputs": [
+        {
+            "id": "blockName",
+            "type": "promptString",
+            "description": "Block name (e.g. MyFilter)",
+            "default": "MyFilter"
+        },
+        {
+            "id": "groupName",
+            "type": "promptString",
+            "description": "Group name (e.g. basic)",
+            "default": "basic"
+        }
+    ],
+    "configurations": [
+        {
+            "name": "Debug block test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/blocks/${input:groupName}/tests/qa_${input:blockName}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}

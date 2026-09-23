@@ -1,0 +1,56 @@
+name: Devcontainer
+
+# Runs the full test suite inside the repository devcontainer — the only CI
+# job with an installed GNURadio 4, so the e2e tests that compile and run
+# generated blocks actually execute here instead of skipping. Also runs both
+# repository examples end to end (the CLI tour includes a real cmake+ctest
+# pass of the generated project).
+#
+# Heavyweight (builds GNURadio 4 on a cache miss), so it runs only on
+# tagged commits as a release gate; every run pushes the image to GHCR so
+# later tags reuse the cached layers.
+
+on:
+  push:
+    tags: ["*"]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  devcontainer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      # GHCR image names must be lowercase; github.repository may not be.
+      - name: Compute cache image name
+        id: image
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}-devcontainer" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build devcontainer, run tests and examples
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: ${{ steps.image.outputs.name }}
+          cacheFrom: ${{ steps.image.outputs.name }}
+          push: always
+          runCmd: |
+            set -euo pipefail
+            echo "== environment =="
+            gr4_modtool --version
+            pkg-config --modversion gnuradio4
+            echo "== full test suite (unit + e2e) =="
+            python3 -m pytest tests/ -q -p no:cacheprovider
+            echo "== Python API example =="
+            python3 examples/gr4_modtool_python_api/build_project.py
+            echo "== CLI tour (includes cmake build + ctest) =="
+            timeout 1800 bash examples/gr4_modtool_cli_tour/tour.sh

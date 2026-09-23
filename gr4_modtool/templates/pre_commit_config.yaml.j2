@@ -1,0 +1,19 @@
+repos:
+  - repo: local
+    hooks:
+      - id: clang-format
+        name: clang-format
+        language: system
+        entry: clang-format
+        args: [--dry-run, --Werror]
+        files: \.(cpp|hpp|h|cc|cxx)$
+        types: [file]
+
+      - id: gr4-tidy
+        name: gr4_modtool tidy
+        language: system
+        entry: gr4_modtool
+        args: [tidy, --build-dir, build]
+        pass_filenames: false
+        files: \.hpp$
+        types: [file]
